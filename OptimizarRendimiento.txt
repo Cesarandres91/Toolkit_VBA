@@ -20,5 +20,3 @@ Declarar variables con tipos específicos (por ejemplo, Long en lugar de Integer
 Usar With statements para reducir la cantidad de código.
 Si es posible, trabajar con rangos en lugar de celdas individuales.
 Usar funciones nativas de Excel cuando sea posible en lugar de bucles.
-
-¿Te gustaría que explique o desglose alguna parte específica de este código?
