@@ -1,0 +1,24 @@
+Este código incluye las siguientes optimizaciones:
+
+Application.ScreenUpdating = False: Desactiva la actualización de pantalla.
+Application.Calculation = xlCalculationManual: Pausa el cálculo automático de fórmulas.
+Application.EnableEvents = False: Desactiva los eventos de Excel.
+Application.DisplayStatusBar = False: Oculta la barra de estado.
+ActiveSheet.DisplayPageBreaks = False: Desactiva la visualización de saltos de página.
+
+Además, el código incluye:
+
+Medición del tiempo de ejecución.
+Restauración de las configuraciones al final de la macro.
+Un mensaje que muestra el tiempo de ejecución.
+
+Otras técnicas que puedes considerar para optimizar aún más tu código:
+
+Usar arrays para procesar datos en memoria en lugar de trabajar directamente con celdas.
+Minimizar el uso de Select y Activate.
+Declarar variables con tipos específicos (por ejemplo, Long en lugar de Integer para números grandes).
+Usar With statements para reducir la cantidad de código.
+Si es posible, trabajar con rangos en lugar de celdas individuales.
+Usar funciones nativas de Excel cuando sea posible en lugar de bucles.
+
+¿Te gustaría que explique o desglose alguna parte específica de este código?
