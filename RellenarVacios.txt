@@ -1,0 +1,21 @@
+Explicación del código:
+
+El código está diseñado para trabajar por defecto con la columna o rango que el usuario haya seleccionado antes de ejecutar la macro.
+Se incluyen comentarios sobre cómo modificar el código para:
+
+Trabajar con una columna específica (descomentando la línea Set rng = ActiveSheet.Range("A:A"))
+Permitir al usuario seleccionar un rango personalizado (descomentando la línea con Application.InputBox)
+
+
+El código itera a través de cada columna en el rango seleccionado. Esto permite que funcione tanto para una sola columna como para múltiples columnas o un rango rectangular.
+Para cada columna, el código:
+
+Determina la última fila con datos
+Inicializa el último valor no vacío con el contenido de la primera celda
+Itera por cada celda en la columna
+Si encuentra una celda vacía, la rellena con el último valor no vacío
+Si la celda no está vacía, actualiza el último valor no vacío
+
+
+Se han incluido optimizaciones básicas (desactivar la actualización de pantalla y el cálculo automático) para mejorar el rendimiento.
+Al final, se muestra un mensaje indicando que el proceso ha sido completado.
