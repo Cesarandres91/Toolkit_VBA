@@ -1,0 +1,291 @@
+MIS EJEMPLOS
+
+*********ABRIR ARCHIVO CON VENTANA EXAMINAR, COPIAR TODO Y PEGAR*********
+//////////////////////////////////////////////////////////////////////////////////////
+   Sheets("LS").Select
+    
+    x = "Archivos Excel (*.xls),*.txt"
+	Filename = Application.GetOpenFilename(filefilter:=x, Title:="Buscar Ls")
+	If Filename = False Then Exit Sub
+
+    Workbooks.OpenText Filename, _
+        Origin:=xlWindows, StartRow:=1, DataType:=xlDelimited, TextQualifier:= _
+        xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=True, Semicolon:=False, _
+        Comma:=False, Space:=False, Other:=False, FieldInfo:=Array(Array(1, 1), _
+        Array(2, 1), Array(3, 1), Array(4, 1)), TrailingMinusNumbers:=True
+    Cells.Select
+    Selection.Copy
+    Windows("Fore.xlsm").Activate
+    Sheets("LS").Select
+    Range("A1").Select
+    ActiveSheet.Paste
+//////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+*********CONTAR FILAS HASTA VACIA, SELECCIONAR RANGO Y COPIAR EN TABLA*********
+//////////////////////////////////////////////////////////////////////////////////////
+
+	Range("A1").Select
+  
+  	xx = 1
+  
+    	Do While Cells(xx, 1).Value <> ""
+        xx = xx + 1
+    	Loop
+        xx = xx - 1
+
+	rango3 = ("a1:c" & xx)
+
+	Range(rango3).Select
+ 	 Selection.Copy
+    	Sheets("PI").Select
+    	Range("Tabla2[SK]").Select
+    	ActiveSheet.Paste
+//////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+*********REDIMENSIONAR TABLA Y LIMPIAR FILAS*********
+//////////////////////////////////////////////////////////////////////////////////////
+	Sheets("FORE").Select
+    ActiveSheet.ListObjects("Tabla1").Resize Range("$A$1:$H$2")
+    Range("A3:H3").Select
+    Range(Selection, Selection.End(xlDown)).Select
+   
+    Selection.ClearContents
+    Sheets("MENU").Select
+//////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+*********DESACTIVAR PANTALLA*********
+//////////////////////////////////////////////////////////////////////////////////////
+
+	Application.ScreenUpdating = False
+
+	Application.ScreenUpdating = True
+//////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+*********CERRAR VENTANA*********
+//////////////////////////////////////////////////////////////////////////////////////
+	Windows("SSP.xlsm").Activate
+    	ActiveWindow.Close
+    	Windows("Fore.xlsm").Activate
+    	ActiveWindow.WindowState = xlMaximized
+//////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+*********COPIAR O REPETIR ETIQUETAS TABLA DINAMICA***********
+//////////////////////////////////////////////////////////////////////////////////////
+    ActiveSheet.PivotTables("ssp").RepeatAllLabels xlRepeatLabels
+//////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+********RENOMBRAR TABLA DINAMICA***************
+//////////////////////////////////////////////////////////////////////////////////////
+ With Sheets("dinamica")        'NOMBRE DE LA HOJA
+        .PivotTables(1).Name = "ssp"    'ENTRE COMILLAS EL NUEVO NOMBRE DE LA DINAMICA
+    End With
+//////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+**********COPIAR TABLA DINAMICA**************
+//////////////////////////////////////////////////////////////////////////////////////
+    Workbooks.Open Filename:= _
+        "F:\CR\zo\SSP.xlsm"
+        Sheets("SSP").Select
+   
+    ActiveSheet.PivotTables("Tabla dinamica1").PivotSelect "", xlDataAndLabel, True
+        Selection.Copy
+    Windows("Fore.xlsm").Activate
+    Sheets("dinamica").Select
+    Range("a1").Select
+    ActiveSheet.Paste
+//////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+***************EXPANDIR TABLA DINAMICA********
+/////////////////////////////////////////////////////////////////////////////////////
+ActiveSheet.PivotTables("ssp").PivotFields("Categor as"). _
+        ShowDetail = True
+    
+    ActiveSheet.PivotTables("ssp").PivotFields("Divisi n").ShowDetail _
+        = True
+////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+***************BARRA PROGRESO*******************
+////////////////////////////////////////////////////////////////////////////////////
+Dim oProgress As New frm_lcf_ProgressBar    'barra de carga
+    Dim style As Integer
+    Dim windowCaption As String
+    Dim endRow As Long
+    Dim i As Long
+    style = 2                 ' Progress bar style (1 / 2).
+    windowCaption = "Cargando, por favor espere" 'nombre barra carga.
+    
+    ' inicio barra progreso
+    oProgress.Initialize 7, style, windowCaption
+      oProgress.Show 0          ' Shows the progress bar window
+      
+Application.ScreenUpdating = False
+
+copiadinamica
+    oProgress.Increase
+renombrar
+    oProgress.Increase
+cajas
+    oProgress.Increase
+expandir
+    oProgress.Increase
+TABULAR
+    oProgress.Increase
+NOMBRESCOPIAR
+    oProgress.Increase
+cerrar
+    oProgress.Increase
+Application.ScreenUpdating = True
+
+Unload oProgress          ' Unload progress bar window
+//////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+*********************COPIAR LISTA A UNA TABLA*************************
+//////////////////////////////////////////////////////////////////////////////////////
+ Sheets("dinamica").Select                     'copiar categoria
+    Range("c6").Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Selection.Copy
+    Sheets("FORE).Select
+    Range("Tabla1[Categor a]").Select
+    ActiveSheet.Paste
+//////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+********************BORRAR MASIVO (FILAS IGUALES A 0 EN COL AH)**************************************
+//////////////////////////////////////////////////////////////////////////////////////
+
+Sheets("inventario real").Select
+Set MiRango = Range([AH2], [AH65536].End(xlUp))
+  If ActiveSheet.AutoFilterMode Then ActiveSheet.AutoFilterMode = False
+  [AH:AH].AutoFilter
+  [AH:AH].AutoFilter Field:=1, Criteria1:="=0"
+  MiRango.EntireRow.Delete
+  [AH:AH].AutoFilter
+If [AH2] = 0 Then [1:1].Delete
+Set MiRango = Nothing
+Sheets("MENU").Select
+
+//////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+*********************ACTUALIZAR TABLA DINAMICA**************************
+//////////////////////////////////////////////////////////////////////////////////////
+ Sheets("Q y S").Select
+    ActiveSheet.PivotTables("Tabla din mica2").PivotCache.Refresh
+//////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+********************RANGO QUE AL CAMBIAR GENERA EVENTO***********************
+///////////////////////////////////////////////////////////////////////////////
+Dim rng As Range
+Set rng = Range("a1:b4") ' el rango que gnerara el evento es "a1:b4"
+
+If Intersect(Target, rng) Is Nothing Then Exit Sub
+///////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+
+_____________________________________________________________________________________
+*******************COPIAR CELDAS**********************************************
+///////////////////////////////////////////////////////////////////////////////
+Dim week
+Dim s, j, i As Integer
+Dim u, y, z As Integer
+u = 0
+y = 7
+z = 0
+s = 0
+x = 2
+j = 1
+i = 1
+b = 7
+vac = ""
+
+conteo = Application.Count(Range("A:A"))        'para contar filas en el rango
+conta = Application.Count(Range("C:C"))
+week = Range("b8:c500")
+
+While z < conta                 'para limpiar
+Cells(y, 3).ClearContents
+z = z + 1
+y = y + 1
+Wend
+
+While s < conteo                                   'para copiar
+Cells(b, 3) = week(j, i)
+s = s + 1
+j = j + 1
+b = b + 1
+Wend
+///////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+                                                        
+**********CONTAR TIEMPO**************
+//////////////////////////////////////////////////////////////////////////////////////
+  Dim StartTime As Double      'contar tiempo
+    StartTime = Timer
+MsgBox Format("Completado!, en: " & Timer - StartTime, "00.00") & " segundos"
+
+//////////////////////////////////////////////////////////////////////////////////////
+_____________________________________________________________________________________
+**********duplicar ETIKETAS**************
+//////////////////////////////////////////////////////////////////////////////////////
+Sub etiketa()
+
+'
+Sheets("Foto de Stock").Select
+'contar filas
+ cc = 1
+  
+        Do While Cells(cc, 1).Value <> "Total general"
+        cc = cc + 1
+        Loop
+        cc = cc - 1
+
+    rangocc = ("a1:b" & cc)
+
+Range(rangocc).Select
+
+Cells.Find(What:="", After:=ActiveCell, LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext, MatchCase:= _
+False).Activate
+
+  Selection.SpecialCells(xlCellTypeBlanks).Select
+  Selection.FormulaR1C1 = "=R[-1]C"
+End Sub
+//////////////////////////////////////////////////////////////////////////////////////
+
+
+____________________________________________________________________________________
+************desactivar ejecuccion de controlador de eventos y pantalla**************
+//////////////////////////////////////////////////////////////////////////////////////
+
+ With Application
+        .EnableEvents = False
+        'impedir que un controlador de eventos
+        'ejecute mientras se ejecuta una macro
+        .ScreenUpdating = False
+        'pantalla
+    End With
+
