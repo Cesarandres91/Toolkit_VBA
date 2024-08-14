@@ -1,0 +1,89 @@
+Sub ExtractJSONValues()
+    On Error GoTo ErrorHandler
+
+    Dim jsonString As String
+    Dim jsonObject As Object
+    Dim cell As Range
+    Dim columnCounter As Long
+    Dim startColumn As Long
+
+    ' Selecciona la celda que contiene el JSON
+    Set cell = Application.InputBox("Selecciona la celda que contiene el JSON:", Type:=8)
+
+    ' Valida que la celda seleccionada no esté vacía
+    If IsEmpty(cell.Value) Then
+        MsgBox "La celda seleccionada está vacía. Selecciona una celda con un JSON válido.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Pregunta al usuario desde qué columna iniciar la extracción
+    startColumn = Application.InputBox("¿Desde qué columna deseas iniciar la extracción? (ej. 2 para la columna B)", Type:=1)
+
+    ' Valida que la entrada de la columna de inicio sea un número
+    If Not IsNumeric(startColumn) Or startColumn < 1 Then
+        MsgBox "Por favor, ingresa un número de columna válido.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Guarda el contenido de la celda en una cadena
+    jsonString = cell.Value
+
+    ' Inicializa el contador de columnas desde la columna seleccionada
+    columnCounter = startColumn - 1
+
+    ' Recorre el JSON
+    Set jsonObject = ParseJSON(jsonString)
+    ExtractValues jsonObject, cell, columnCounter
+
+    MsgBox "Extracción completada.", vbInformation
+    Exit Sub
+
+ErrorHandler:
+    MsgBox "Ocurrió un error: " & Err.Description, vbCritical
+
+End Sub
+
+Function ParseJSON(jsonString As String) As Object
+    On Error GoTo ErrorHandler
+
+    Dim ScriptControl As Object
+    Set ScriptControl = CreateObject("MSScriptControl.ScriptControl")
+    ScriptControl.Language = "JScript"
+    Set ParseJSON = ScriptControl.Eval("(" & jsonString & ")")
+    Exit Function
+
+ErrorHandler:
+    MsgBox "Error al analizar el JSON: " & Err.Description, vbCritical
+    Set ParseJSON = Nothing
+
+End Function
+
+Sub ExtractValues(jsonObject As Object, ByVal cell As Range, ByRef columnCounter As Long)
+    On Error GoTo ErrorHandler
+
+    Dim key As Variant
+    Dim innerObject As Object
+    Dim arrayElement As Variant
+    Dim i As Long
+
+    For Each key In jsonObject
+        If IsObject(jsonObject(key)) Then
+            If TypeName(jsonObject(key)) = "Collection" Then
+                For Each arrayElement In jsonObject(key)
+                    ExtractValues arrayElement, cell, columnCounter
+                Next arrayElement
+            Else
+                Set innerObject = jsonObject(key)
+                ExtractValues innerObject, cell, columnCounter
+            End If
+        Else
+            cell.Offset(0, columnCounter).Value = IIf(IsNull(jsonObject(key)), "", jsonObject(key))
+            columnCounter = columnCounter + 1
+        End If
+    Next key
+    Exit Sub
+
+ErrorHandler:
+    MsgBox "Error al extraer valores: " & Err.Description, vbCritical
+
+End Sub
